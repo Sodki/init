@@ -13,6 +13,12 @@ source /usr/lib/os-release
 mkdir -p /run/coreos
 echo -e "\e[${ANSI_COLOR}m${NAME}\e[39m ${GROUP} (${VERSION})" > /run/coreos/motd
 
-if [[ -d "/etc/motd.d" ]]; then
-	cat /etc/motd.d/*.conf 2>/dev/null >> /run/coreos/motd || true
-fi
+for file in /etc/motd.d/*.conf; do
+	if [ -f "$file" ]; then
+		if [ -x "$file" ]; then
+			"$file" || true
+		else
+			cat "$file"
+		fi
+	fi
+done 2>/dev/null >> /run/coreos/motd
